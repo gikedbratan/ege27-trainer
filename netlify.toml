@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  command = "echo ok"
+[functions]
+  node_bundler = "esbuild"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"
