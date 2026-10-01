@@ -1,5 +1,5 @@
 [build]
-  publish = "."
+  publish = "67"
   command = "echo ok"
 [functions]
   node_bundler = "esbuild"
