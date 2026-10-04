@@ -17,7 +17,7 @@ async function me(req, db) {
   const u = await db.get(`u/${id}`, { type: "json" });
   return u && u.th === H(tok) ? { id, ...u } : null;
 }
-const pub = (u, id) => ({ id, name: u.name, klass: u.klass, pts: u.pts || 0, acc: u.acc || 0, vbest: u.vbest || 0, upd: u.upd || 0, admin: !!u.admin });
+const pub = (u, id) => ({ id, name: u.name, klass: u.klass, pts: u.pts || 0, acc: u.acc || 0, vbest: u.vbest || 0, upd: u.upd || 0, admin: !!u.admin, dg: u.dg || null, ex: u.ex || null });
 
 async function newUser(db, code, name, klass, admin) {
   const id = rnd(9), tok = rnd(24);
@@ -58,9 +58,22 @@ export default async (req) => {
       await db.set(`p/${u.id}`, raw);
       const sts = Object.values(S.st || {}), ok = sts.reduce((a, s) => a + (s.ok || 0), 0), tot = sts.reduce((a, s) => a + (s.tot || 0), 0);
       const vbest = Math.max(0, ...(S.vars || []).map((v) => +v.test || +v.score || 0));
-      const m = { name: u.name, klass: u.klass, admin: !!u.admin, pts: ok, acc: tot ? Math.round((ok / tot) * 100) : 0, vbest, upd: Date.now() };
+      const dgh = (S.dgh || []).slice(-2).map((x) => ({ t: +x.t || 0, test: +x.test || 0, prim: +x.prim || 0 }));
+      const exa = await db.get(`${C}/exam`, { type: "json" });
+      const ev = exa ? (S.vars || []).filter((v) => v && v.asg === exa.id).sort((a, b) => (b.test || 0) - (a.test || 0))[0] : null;
+      const m = { name: u.name, klass: u.klass, admin: !!u.admin, pts: ok, acc: tot ? Math.round((ok / tot) * 100) : 0, vbest, upd: Date.now(), dg: dgh.length ? dgh : null, ex: ev ? { id: exa.id, test: +ev.test || 0, prim: +ev.prim || 0, t: +ev.t || 0, min: +ev.min || 0 } : null };
       await db.setJSON(`${C}/m/${u.id}`, m);
       return J({ ok: true });
+    }
+
+    // зачётный вариант от учителя: одинаковое зерно у всего класса
+    if (p === "exam" && req.method === "GET") return J({ exam: await db.get(`${C}/exam`, { type: "json" }) });
+    if (p === "exam" && req.method === "POST") {
+      if (!u.admin) return E("Нельзя", 403);
+      if (!body.on) { await db.delete(`${C}/exam`); return J({ exam: null }) }
+      const kind = ["fe", "fm", "fh"].includes(body.kind) ? body.kind : "fm";
+      const exam = { id: "x" + Date.now().toString(36), kind, seed: Math.floor(Math.random() * 4294967295), title: clean(body.title, 60), due: clean(body.due, 10), t: Date.now() };
+      await db.setJSON(`${C}/exam`, exam); return J({ exam });
     }
 
     // рейтинг класса + результаты спринта дня
