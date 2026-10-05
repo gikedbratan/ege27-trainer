@@ -544,3 +544,5 @@ const run=r=>(r||document).querySelectorAll('[data-w]:not([data-on])').forEach(e
 const kw=()=>document.querySelectorAll('.katex:not(.kw)').forEach(k=>{const p=k.parentElement&&k.parentElement.closest('.sol,.card,.bd,.v4ty,.ex,.v4w,.cheat>div,.tp');const q=k.querySelector('semantics')||k;if(p&&Math.max(k.getBoundingClientRect().right,q.getBoundingClientRect().right)>p.getBoundingClientRect().right+1)k.classList.add('kw')});
 let kq=0;new MutationObserver(()=>{run();if(!kq){kq=1;requestAnimationFrame(()=>{kq=0;kw()})}}).observe(document.body,{childList:true,subtree:true});run();window.v4widgets=run;addEventListener('resize',()=>{document.querySelectorAll('.katex.kw').forEach(k=>k.classList.remove('kw'));kw()});document.addEventListener('toggle',()=>requestAnimationFrame(kw),true);
 })();
+/* fix: первый экран рисуется до загрузки v4, перерисовать новыми функциями */
+try{if(window.__v4&&typeof ST!=='undefined'&&ST.profile&&!exOpen()){if(S.last&&T[S.last.n])open(S.last.n,S.last.tab);else home()}}catch(e){}
