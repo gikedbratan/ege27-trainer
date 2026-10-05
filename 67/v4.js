@@ -1,5 +1,5 @@
 /* v4: входной тест, режимы вариантов, варианты ФИПИ по уровням, плашка теории, статистика, счётчики, «Сегодня», учитель */
-(()=>{if(window.__v4||typeof GEN==='undefined')return;window.__v4=1;
+(()=>{if(window.__v4||typeof GEN==='undefined')return;window.__v4=1;window.V4C=window.V4C||[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
 const B=window.FIPI_BANK||{},META=window.BANK_META||{};window.SOL=window.SOL||{};window.THEO=window.THEO||{};
 document.head.insertAdjacentHTML('beforeend',`<style id="v4">
 .v4sh{position:fixed;inset:0;z-index:150;display:flex;justify-content:flex-end}
@@ -72,14 +72,14 @@ window.v4sol=solHtml;
 const bImg=t=>t.f?`<img class="bfig" alt="Рисунок к задаче" src="data:image/webp;base64,${t.f}" style="width:${Math.round(t.w*1.6)}px">`:'';
 const bQ=t=>`<span class="bq" data-id="${t.id}">${t.q}</span>`;
 const bSrc=t=>`Источник: открытый банк заданий ЕГЭ ФИПИ, задача ${t.id} по сборнику А. Д. Остромогильского (обновление 28.08.26). Условие и числа не изменены.`;
-function bItem(t){return t.n>13?{n:t.n,q:bQ(t),a:null,ans:t.ans,p2:1,fig:bImg(t),s:solHtml(t),bid:t.id,src:bSrc(t)}:{n:t.n,q:bQ(t),a:t.a,ans:null,fig:bImg(t),s:solHtml(t),bid:t.id,src:bSrc(t)}}
+function bItem(t){return t.n>13?{n:t.n,q:bQ(t),a:null,ans:t.ans,p2:1,fig:bImg(t),s:window.v4sol(t),bid:t.id,src:bSrc(t)}:{n:t.n,q:bQ(t),a:t.a,ans:null,fig:bImg(t),s:window.v4sol(t),bid:t.id,src:bSrc(t)}}
 /* выбор задачи банка: по уровню, сначала не решённые и не встречавшиеся */
 function bPick(n,lv,personal,r){r=r||Math.random;if(window.__bkForce&&BI[window.__bkForce]){const t=BI[window.__bkForce];window.__bkForce=null;return t}
  let L=(B[n]||[]).filter(t=>!lv||bLv(t)===lv);if(!L.length)L=B[n]||[];
  if(personal&&S.bk){const nw=L.filter(t=>!(t.id in S.bk)),wr=L.filter(t=>S.bk[t.id]===0);if(nw.length)L=nw;else if(wr.length)L=wr}
  return L[Math.floor(r()*L.length)]}
 window.v4b={B,BI,bLv,bPick,bItem,bSize,bSolved};
-for(const n in B){const j=RIX(n);if(j<0)continue;GEN[n][j]=()=>{const t=bPick(+n,S.lvl||0,true);window.__bk=t;const it=bItem(t);return{q:it.q,a:it.a,ans:it.ans,p2:it.p2,fig:it.fig,s:it.s}}}
+for(const n in B){const j=RIX(n);if(j<0)continue;GEN[n][j]=()=>{const t=window.v4b.bPick(+n,S.lvl||0,true);window.__bk=t;const it=bItem(t);return{q:it.q,a:it.a,ans:it.ans,p2:it.p2,fig:it.fig,s:it.s}}}
 
 /* ===== учёт попыток: решённые задачи банка, точность и время по типам, задачи за день ===== */
 const tyKey=(n,bid,i)=>bid?'b:'+BI[bid].sub:'g:'+n+':'+i;
@@ -93,10 +93,10 @@ function rec(n,bid,i,ok,ms,src){S.bk=S.bk||{};if(bid){if(ok)S.bk[bid]=1;else if(
 window.v4rec=rec;
 /* практика: id задачи банка, время, кнопка теории */
 const _rp=renderProb;renderProb=function(){_rp();if(!prob)return;const m=/data-id="([^"]+)"/.exec(prob.q||'');prob.bid=m&&GS[prob.n][prob.i]==='R'?m[1]:null;prob._t0=Date.now();
- const tl=document.querySelector('#pb .ptools');if(tl&&!tl.querySelector('#thd')){tl.insertAdjacentHTML('beforeend','<button class="lnk" id="thd" type="button">теория типа</button>');tl.querySelector('#thd').onclick=()=>thOpen(prob.n,prob.bid,prob.i)}
+ const tl=document.querySelector('#pb .ptools');if(tl&&!tl.querySelector('#thd')){tl.insertAdjacentHTML('beforeend','<button class="lnk" id="thd" type="button">теория типа</button>');tl.querySelector('#thd').onclick=()=>window.thOpen(prob.n,prob.bid,prob.i)}
  const sr=document.querySelector('#pb .srcd .src');if(sr&&prob.bid)sr.textContent=bSrc(BI[prob.bid])};
 const _rv=reveal;reveal=function(ok,answered){const p=prob;_rv(ok,answered);if(!p||p._rec)return;p._rec=1;rec(p.n,p.bid,p.i,ok,Date.now()-(p._t0||Date.now()),'p');save();side();
- const th=$('#th');if(th){th.textContent='Теория типа';th.onclick=()=>thOpen(p.n,p.bid,p.i)}};
+ const th=$('#th');if(th){th.textContent='Теория типа';th.onclick=()=>window.thOpen(p.n,p.bid,p.i)}};
 const _eu=errUpd;errUpd=function(ok){_eu(ok);if(prob&&prob.bid&&!ok){const e=(S.err||[]).find(x=>x.k===pkey(prob));if(e)e.bid=prob.bid}};
 const _rpl=replay;replay=function(e){if(e.bid)window.__bkForce=e.bid;_rpl(e);window.__bkForce=null};
 const _tw=toolsWire;toolsWire=function(){_tw();const f=$('#fav');if(f)f.addEventListener('click',()=>{if(!prob||!prob.bid)return;const e=(S.fav||[]).find(x=>x.k===pkey(prob));if(e)e.bid=prob.bid;save()})};
@@ -154,7 +154,7 @@ const _ev=exView;exView=function(){tmTick();_ev();if(!EX||!EX.running)return;con
  const hp=document.querySelector('.exhead .hint');if(hp&&tr)hp.textContent='20 заданий, 3 ч 55 мин. Можно открыть теорию типа задачи, подсказки появятся сами, если долго думаешь. Результат идёт в прогресс, но не в оценку знаний.';
  if(!tr)return;
  const pt=document.querySelector('#view .card .ptop');if(pt)pt.insertAdjacentHTML('beforeend',`<button class="btn ghost sm" id="exth" type="button">Теория</button>`);
- const tb=$('#exth');if(tb)tb.onclick=()=>{EX.thv=EX.thv||{};EX.thv[n]=1;exSave();thOpen(n,it.bid,it.i)};
+ const tb=$('#exth');if(tb)tb.onclick=()=>{EX.thv=EX.thv||{};EX.thv[n]=1;exSave();window.thOpen(n,it.bid,it.i)};
  const ar=document.querySelector('#view .ansrow');if(ar){ar.insertAdjacentHTML('afterend',hintBar());prob={n,s:it.s||'',i:it.i,q:it.q};checked=false;hintWire()}};
 const _ef=exFinish;exFinish=function(auto){tmTick();if(EX&&!EX.done&&!EX.api)exApply1();_ef(auto)};
 /* после завершения: часть 1 в прогресс, а в зачётном ещё и в оценку знаний */
@@ -174,7 +174,7 @@ const _rs=exResults;exResults=function(auto){_rs(auto);if(!EX)return;const tr=EX
  const tm=EX.tm||{},mm=n=>tm[n]?`${Math.max(1,Math.round(tm[n]/6e4))} мин`:'';
  document.querySelectorAll('[data-sol]').forEach(b=>{const n=+b.dataset.sol,it=EX.items.find(x=>x.n===n);b.parentElement.insertAdjacentHTML('beforeend',` <button class="lnk" data-th="${n}">теория</button> <button class="lnk" data-sim="${n}">похожая</button>${mm(n)?` <small class="hint">${mm(n)}</small>`:''}`)});
  document.querySelectorAll('.p2c').forEach(c=>{const p=c.querySelector('.pill');const n=p?+p.textContent.replace(/\D/g,''):0;if(!n)return;c.insertAdjacentHTML('beforeend',`<div class="actions"><button class="btn ghost sm" data-th="${n}">Теория типа</button><button class="btn ghost sm" data-sim="${n}">Похожая задача</button>${mm(n)?`<span class="hint">время: ${mm(n)}</span>`:''}</div>`)});
- document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{const it=EX.items.find(x=>x.n===+b.dataset.th);thOpen(it.n,it.bid,it.i)});
+ document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{const it=EX.items.find(x=>x.n===+b.dataset.th);window.thOpen(it.n,it.bid,it.i)});
  document.querySelectorAll('[data-sim]').forEach(b=>b.onclick=()=>{const it=EX.items.find(x=>x.n===+b.dataset.sim);similar(it.n,it.bid)})};
 
 /* код варианта: буква уровня + зерно (старые коды без буквы открывают прежний случайный вариант) */
@@ -299,7 +299,7 @@ function dgResult(j){hintStop();cur={n:null,tab:'diag',mix:false};S.now={diag:1}
  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>open(+b.dataset.o,'theory'));
  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>open(+b.dataset.p,'practice'));
  document.querySelectorAll('[data-sim]').forEach(b=>b.onclick=()=>similar(+b.dataset.sim,b.dataset.b||null));
- document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>thOpen(+b.dataset.th,b.dataset.b||null,b.dataset.i===''?null:+b.dataset.i));
+ document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>window.thOpen(+b.dataset.th,b.dataset.b||null,b.dataset.i===''?null:+b.dataset.i));
  $('#pmk').onclick=()=>{const g=+$('#pgoal').value;S.goal=g;S.dplan=Object.assign(dgPlan(h,+$('#pmin').value,g),{ref:h.t});save();dgResult(j);setTimeout(()=>$('#plan').scrollIntoView({block:'start'}),50)};
  planWire();$('#dgback').onclick=()=>dgIntro();toTop('dgr'+j)}
 const DN=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -423,4 +423,124 @@ if(typeof arMe==='function'){const _am=arMe;arMe=async function(){await _am();co
  const off=$('#axoff');if(off)off.onclick=async()=>{try{await arApi('exam',{on:0});uiNote('Вариант снят.');arenaView()}catch(e){uiNote(e.message)}}}}
 /* текущий экран после перезагрузки */
 if(S.now&&S.now.stats&&ST.uid)statsView();else if(S.now&&S.now.diag&&ST.uid)dgView();else if(S.now&&S.now.home&&ST.uid)home();
+})();
+
+/* ===== контент по номерам: теория по типам и решения задач банка (c/cN.js, на сайте грузятся по требованию) ===== */
+(()=>{if(window.__v4e||!window.v4b)return;window.__v4e=1;
+const{B,BI,bLv}=window.v4b,THEO=window.THEO,SOL=window.SOL,META=window.BANK_META||(window.BANK_META={});
+const C4=window.V4C||[],LD={},ASK={};
+document.head.insertAdjacentHTML('beforeend',`<style id="v4e">
+.v4th .lead{font-size:17px;margin:0 0 6px}.v4th h3{margin:22px 0 8px}
+.v4ty{border:1px solid var(--line);border-radius:16px;margin:10px 0;background:var(--panel)}
+.v4ty>summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;font:600 15.5px var(--ui)}
+.v4ty>summary::-webkit-details-marker{display:none}.v4ty>summary small{font:500 12px var(--hand);color:var(--muted);white-space:nowrap}
+.v4ty>summary::after{content:"+";font:600 18px var(--hand);color:var(--ink);transition:transform .2s}.v4ty[open]>summary::after{transform:rotate(45deg)}
+.v4ty>div{padding:0 16px 16px}.v4full>summary{cursor:pointer;font:600 15px var(--ui);color:var(--ink);padding:6px 0}
+.v4sl{color:var(--muted);font-size:14px}.v4only{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px;font-size:13.5px}
+.sol .katex-display,.theory .katex-display{overflow-x:auto;overflow-y:hidden;padding:2px 0}.sol math,.theory math{font-size:1.08em}
+.v4t .cheat{grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr))}.v4t .cheat>div,.v4t li,.v4t p{min-width:0}
+.v4t table,.sol table{display:block;overflow-x:auto;max-width:100%}.katex.kw{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 0 4px}
+.v4fig{margin:10px 0;max-width:360px;color:var(--text)}.v4fig svg{width:100%;height:auto}
+</style>`);
+/* загрузка контента номера */
+function need(n){n=+n;if(LD[n]||!C4.includes(n))return Promise.resolve(!!LD[n]);if(ASK[n])return ASK[n];
+ ASK[n]=new Promise(res=>{const s=document.createElement('script');s.src=`/c/c${n}.js`;s.onload=()=>res(true);s.onerror=()=>{delete ASK[n];res(false)};document.head.appendChild(s)});return ASK[n]}
+window.v4need=need;
+function add(o){const n=+o.n;for(const id in o.fix||{}){const t=BI[id];if(t){if(t.n<=13)t.a=o.fix[id];else t.ans=o.fix[id]}}THEO[n]=o.theo;Object.assign(SOL,o.sol||{});for(const id in o.lv||{})META[id]=[o.lv[id]];LD[n]=1;
+ document.querySelectorAll('.v4sl').forEach(e=>{const t=BI[e.dataset.id];if(t&&t.n===n){const d=document.createElement('div');d.innerHTML=window.v4sol(t);e.replaceWith(...d.childNodes)}});
+ if(cur&&cur.n===n&&cur.tab==='theory'&&document.getElementById('pane'))theory(n)}
+window.v4add=add;(window.V4Q||[]).forEach(add);window.V4Q=[];
+/* решение: пока контент номера грузится, ставим заглушку */
+const _sh=window.v4sol;window.v4sol=function(t){if(!SOL[t.id]&&C4.includes(t.n)&&!LD[t.n]){need(t.n);return `<div class="v4sl" data-id="${t.id}">Загружаю разбор…</div>`}
+ const z=SOL[t.id];let h=_sh(t);if(z&&z.fig)h=`<div class="v4fig">${z.fig}</div>`+h;return h};
+/* задачи, которые уже собраны (вариант, практика), получают свежий текст решения */
+/* тип задачи банка по прототипу */
+const tyOf=(n,id)=>{const X=THEO[n],t=BI[id];return X&&t?X.types.find(y=>(y.subs||[]).includes(t.sub)):null};
+window.v4tyOf=tyOf;
+/* примеры типа: задачи банка с полным решением */
+const exHtml=e=>{const t=BI[e.id];if(!t)return'';const img=t.f?`<img class="bfig" alt="Рисунок" src="data:image/webp;base64,${t.f}" style="width:${Math.round(t.w*1.6)}px">`:'';
+ return `<details class="ex"${e.open?' open':''}><summary>Пример ${e.k}, ${LV[e.lv||bLv(t)]}: задача ${t.id}</summary><div class="prob sm"><span class="bq">${t.q}</span></div>${img}<div class="sol">${window.v4sol(t)}</div></details>`};
+const typeBody=(n,y)=>window.v4tex(`${y.th||''}${y.f&&y.f.length?`<h3>Формулы</h3><div class="cheat">${y.f.map(x=>`<div>${x}</div>`).join('')}</div>`:''}
+ ${y.alg?`<h3>Алгоритм</h3><ol class="alg">${y.alg.map(s=>`<li>${s[0]}${s[1]?`<p class="tp">${s[1]}</p>`:''}</li>`).join('')}</ol>`:''}`)+(y.ex||[]).map((e,k)=>exHtml(Object.assign({k:k+1,open:!k},e))).join('');
+/* шторка: теория именно этого типа с разобранными примерами */
+const _to=window.thOpen;window.thOpen=function(n,bid,i){const X=THEO[n];
+ if(!X&&C4.includes(+n)&&!LD[n]){need(n).then(()=>window.thOpen(n,bid,i));return}
+ let y=null;if(X)y=bid?tyOf(n,bid):X.types.find(z=>(z.gens||[]).includes(i));
+ if(!y)return _to(n,bid,i);window.v4sheet(`№${n}. ${y.t.replace(/\\[()]/g,'')}`,`<div class="v4t">${typeBody(n,y)}<p class="hint">Вся теория номера: вкладка «Теория».</p></div>`)};
+/* вкладка «Теория»: кратко, шпаргалка, полная теория с выводами, типы с алгоритмом и примерами */
+const _th=theory;theory=function(n){const X=THEO[n];if(!X){if(C4.includes(n)&&!LD[n]){$('#pane').innerHTML='<div class="card"><p class="hint">Загружаю теорию…</p></div>';need(n).then(ok=>{if(!ok)_th(n)})}else _th(n);return}
+ const cnt=y=>(B[n]||[]).filter(t=>(y.subs||[]).includes(t.sub)).length,tr=(TRAPS[n]||[]).map(t=>`<li>${t}</li>`).join('');
+ $('#pane').innerHTML=`<div class="card theory v4th v4t fade"><p class="lead">${window.v4tex(X.intro)}</p>
+ <h3>Шпаргалка</h3><div class="cheat">${X.cheat.map(c=>`<div>${window.v4tex(c)}</div>`).join('')}</div>
+ <details class="v4full"><summary>Полная теория с выводами</summary>${window.v4tex(X.full)}</details>
+ <h3>Типы задач в банке ФИПИ (${X.types.length})</h3>${X.types.map(y=>`<details class="v4ty" data-k="${y.k}"><summary><span>${window.v4tex(y.t)}</span><small>${cnt(y)} задач</small></summary><div></div></details>`).join('')}
+ ${tr?`<div class="trap real"><b>Ловушки с реального ЕГЭ.</b><ul>${tr}</ul></div>`:''}
+ <p class="hint">Время на это задание по спецификации ФИПИ: около ${SPEC[n][0]} мин.</p><div class="actions"><button class="btn" id="toq">К вопросам</button><button class="btn ghost" id="top">Сразу к практике</button></div></div>`;
+ document.querySelectorAll('.v4ty').forEach(d=>d.addEventListener('toggle',()=>{const b=d.querySelector('div');if(!d.open||b.dataset.ok)return;const y=X.types.find(z=>z.k===d.dataset.k);
+  b.innerHTML=typeBody(n,y)+`<div class="actions"><button class="btn sm" data-ty="${y.k}">Решать этот тип</button></div>`;b.dataset.ok=1;b.querySelector('[data-ty]').onclick=()=>{S.bty=S.bty||{};S.bty[n]=y.k;S.typ[n]=GS[n].indexOf('R');S.lvl=0;S.src='';save();open(n,'practice')}}));
+ $('#toq').onclick=()=>open(n,'quiz');$('#top').onclick=()=>open(n,'practice')};
+/* практика: фильтр «только этот тип» для задач банка */
+const _bp=window.v4b.bPick;window.v4b.bPick=function(n,lv,personal,r){const k=S.bty&&S.bty[n],y=k&&THEO[n]&&THEO[n].types.find(z=>z.k===k);
+ if(!y||(cur&&cur.mix)||(S.typ[n]??-1)!==GS[n].indexOf('R'))return _bp(n,lv,personal,r);
+ const keep=B[n];B[n]=keep.filter(t=>y.subs.includes(t.sub));try{return _bp(n,lv,personal,r)}finally{B[n]=keep}};
+const _pr=practice;practice=function(){if(cur&&!cur.mix&&S.bty&&S.bty[cur.n]&&(S.typ[cur.n]??-1)!==GS[cur.n].indexOf('R'))delete S.bty[cur.n];
+ if(cur&&!cur.mix)need(cur.n);_pr();const n=cur.n,k=!cur.mix&&S.bty&&S.bty[n],y=k&&THEO[n]&&THEO[n].types.find(z=>z.k===k);
+ if(y){const c=document.querySelector('#pane .card');c.insertAdjacentHTML('afterbegin',`<p class="v4only"><span class="pill">тип: ${window.v4tex(y.t)}</span><button class="lnk" id="tyall">все типы</button></p>`);$('#tyall').onclick=()=>{delete S.bty[n];save();practice()}}};
+const _op=open;open=function(n,tab){need(n);_op(n,tab)};
+/* варианты и тест: заранее подгружаем все номера */
+const pre=()=>C4.forEach(need);const _fs=window.fStart;window.fStart=function(){pre();return _fs.apply(this,arguments)};
+const _dv=window.dgView;window.dgView=function(){pre();return _dv.apply(this,arguments)};
+})();
+
+/* ===== интерактив в теории: график с параметром (data-w="plot") и тригонометрический круг (data-w="trig") ===== */
+(()=>{if(window.__v4f)return;window.__v4f=1;
+document.head.insertAdjacentHTML('beforeend',`<style id="v4f">
+.v4w{margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--bg);max-width:460px}
+.v4w svg{width:100%;height:auto;display:block;touch-action:none}.v4w .g{stroke:var(--line);stroke-width:1}.v4w .ax{stroke:var(--muted);stroke-width:1.2}
+.v4w .c0{stroke:var(--ink)}.v4w .c1{stroke:var(--l2)}.v4w .c2{stroke:var(--l3)}.v4w .c3{stroke:var(--l1)}.v4w path.cv{fill:none;stroke-width:2.2;stroke-linejoin:round}
+.v4w text{fill:var(--muted);font:11px var(--hand)}.v4w .cap{font-size:13.5px;color:var(--muted);margin:8px 0 0;line-height:1.45}
+.v4w .rg{display:flex;gap:10px;align-items:center;margin-top:8px;font:500 13px var(--hand);color:var(--text)}.v4w .an{min-width:86px;white-space:nowrap}.v4w .v4av,.v4w .tv{color:var(--ink);font-weight:600}.v4w input[type=range]{flex:1;accent-color:var(--ink)}
+.v4w .pt{fill:var(--ink)}.v4w .pt2{fill:var(--l2)}.v4w .arc{fill:none;stroke:var(--l2);stroke-width:6;stroke-linecap:round;opacity:.55}.v4w .vals{display:flex;gap:14px;flex-wrap:wrap;font:500 13px var(--hand);margin-top:6px}
+</style>`);
+const OK=/^[\s\dx a.+\-*/^(),;]*$/,FN={sqrt:'Math.sqrt',abs:'Math.abs',sin:'Math.sin',cos:'Math.cos',tan:'Math.tan',ln:'Math.log',log10:'Math.log10',exp:'Math.exp',pi:'Math.PI',e:'Math.E'};
+function comp(src){let s=String(src).replace(/\s+/g,'');const words=s.match(/[a-z]\w*/gi)||[];
+ for(const w of words)if(!(w in FN)&&w!=='x'&&w!=='a')throw new Error('bad '+w);
+ s=s.replace(/(^|[(,*/+\-])-/g,'$1(0-1)*').replace(/[a-z]\w*/gi,w=>FN[w]||w).replace(/\^/g,'**');
+ return new Function('x','a','"use strict";return ('+s+')')}
+const num=v=>{const f=comp(v);return f(0,0)};
+const tx=h=>window.v4tex?window.v4tex(h):h;
+function plot(el){const fs=el.dataset.f.split(';').map(s=>{try{return comp(s)}catch(e){return null}}).filter(Boolean);if(!fs.length)return;
+ const[x0,x1]=(el.dataset.x||'-5,5').split(',').map(Number),[y0,y1]=(el.dataset.y||'-5,5').split(',').map(Number),A=el.dataset.a?el.dataset.a.split(',').map(Number):null;
+ const W=320,H=Math.round(320*Math.min(1,Math.max(.55,(y1-y0)/(x1-x0)))),X=x=>(x-x0)/(x1-x0)*W,Y=y=>H-(y-y0)/(y1-y0)*H;
+ const step=v=>{const r=(v)/8,p=Math.pow(10,Math.floor(Math.log10(r))),m=r/p;return(m<1.5?1:m<3.5?2:m<7.5?5:10)*p},sx=step(x1-x0),sy=step(y1-y0);
+ let grid='';for(let x=Math.ceil(x0/sx)*sx;x<=x1+1e-9;x+=sx)grid+=`<line class="g" x1="${X(x)}" x2="${X(x)}" y1="0" y2="${H}"/>`+(Math.abs(x)>1e-9&&y0<=0&&y1>=0?`<text x="${X(x)+2}" y="${Math.min(H-2,Y(0)+12)}">${+x.toFixed(4)}</text>`:'');
+ for(let y=Math.ceil(y0/sy)*sy;y<=y1+1e-9;y+=sy)grid+=`<line class="g" x1="0" x2="${W}" y1="${Y(y)}" y2="${Y(y)}"/>`+(Math.abs(y)>1e-9&&x0<=0&&x1>=0?`<text x="${Math.max(2,X(0)+3)}" y="${Y(y)-2}">${+y.toFixed(4)}</text>`:'');
+ if(y0<=0&&y1>=0)grid+=`<line class="ax" x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}"/>`;if(x0<=0&&x1>=0)grid+=`<line class="ax" x1="${X(0)}" x2="${X(0)}" y1="0" y2="${H}"/>`;
+ el.classList.add('v4w');el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="График"><g>${grid}</g><g class="cvs"></g></svg>${A?`<div class="rg"><span class="an">a = <span class="v4av"></span></span><input type="range" min="${A[0]}" max="${A[1]}" step="${A[2]}" value="${A[3]}" aria-label="Параметр a"></div>`:''}${el.dataset.cap?`<p class="cap">${tx(el.dataset.cap)}</p>`:''}`;
+ const g=el.querySelector('.cvs'),inp=el.querySelector('input'),av=el.querySelector('.v4av');
+ const draw=()=>{const a=inp?+inp.value:0;if(av)av.textContent=String(+a.toFixed(4)).replace('.',',');let out='';
+  fs.forEach((f,k)=>{let d='',pen=false,prev=null;for(let i=0;i<=400;i++){const x=x0+(x1-x0)*i/400;let y;try{y=f(x,a)}catch(e){y=NaN}
+   const bad=!isFinite(y)||y<y0-(y1-y0)*2||y>y1+(y1-y0)*2||(prev!=null&&Math.abs(y-prev)>(y1-y0)*1.5);if(bad){pen=false;prev=isFinite(y)?y:null;continue}
+   d+=(pen?'L':'M')+X(x).toFixed(1)+','+Y(Math.max(y0-(y1-y0),Math.min(y1+(y1-y0),y))).toFixed(1);pen=true;prev=y}
+   out+=`<path class="cv c${k%4}" d="${d}"/>`});g.innerHTML=out};
+ if(inp)inp.oninput=draw;draw()}
+function trig(el){const W=300,R=110,c=150,P=t=>[c+R*Math.cos(t),c-R*Math.sin(t)];
+ const pts=(el.dataset.pts||'').split(';').filter(Boolean).map(s=>{try{return num(s)}catch(e){return null}}).filter(v=>v!=null);
+ const arc=el.dataset.arc?el.dataset.arc.split(',').map(s=>{try{return num(s)}catch(e){return 0}}):null;
+ let arcP='';if(arc){const[a,b]=arc,n=Math.max(8,Math.ceil(Math.abs(b-a)/0.05));let d='';for(let i=0;i<=n;i++){const t=a+(b-a)*i/n,r=R+(i/n)*0+10*(Math.floor((t-a)/(2*Math.PI)));const[x,y]=[c+(R+8+r-R)*Math.cos(t),c-(R+8+r-R)*Math.sin(t)];d+=(i?'L':'M')+x.toFixed(1)+','+y.toFixed(1)}arcP=`<path class="arc" d="${d}"/>`}
+ let lab='';[[0,'0'],[Math.PI/2,'π/2'],[Math.PI,'π'],[3*Math.PI/2,'3π/2']].forEach(([t,s])=>{const[x,y]=[c+(R+18)*Math.cos(t),c-(R+18)*Math.sin(t)];lab+=`<text x="${x-8}" y="${y+4}">${s}</text>`});
+ el.classList.add('v4w');el.innerHTML=`<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="Тригонометрический круг"><line class="ax" x1="10" x2="290" y1="${c}" y2="${c}"/><line class="ax" x1="${c}" x2="${c}" y1="10" y2="290"/><circle cx="${c}" cy="${c}" r="${R}" fill="none" class="ax"/>${arcP}${lab}
+ ${pts.map(t=>{const[x,y]=P(t);return `<circle class="pt2" cx="${x}" cy="${y}" r="5"/>`}).join('')}<g class="mv"></g></svg>
+ <div class="rg"><span class="an">t = <span class="tv"></span></span><input type="range" min="-360" max="360" step="15" value="30" aria-label="Угол t"></div><div class="vals"></div>${el.dataset.cap?`<p class="cap">${tx(el.dataset.cap)}</p>`:''}`;
+ const inp=el.querySelector('input'),mv=el.querySelector('.mv'),fmt=v=>Math.abs(v)<1e-9?'0':String(+v.toFixed(3)).replace('.',',').replace('-','−');
+ const PI={0:'0',30:'π/6',45:'π/4',60:'π/3',90:'π/2',120:'2π/3',135:'3π/4',150:'5π/6',180:'π'};
+ const nm=d=>{const s=d<0?'−':'',a=Math.abs(d),k=Math.floor(a/180),r=a%180;if(PI[a]!=null)return s+PI[a];if(r===0)return s+k+'π';return s+d+'°'};
+ const draw=()=>{const d=+inp.value,t=d*Math.PI/180,[x,y]=P(t);
+  mv.innerHTML=`<line class="c0" x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke-width="2"/><line class="c1" x1="${x}" y1="${y}" x2="${x}" y2="${c}" stroke-width="2" stroke-dasharray="4 3"/><line class="c3" x1="${x}" y1="${y}" x2="${c}" y2="${y}" stroke-width="2" stroke-dasharray="4 3"/><circle class="pt" cx="${x}" cy="${y}" r="6"/>`;
+  el.querySelector('.tv').textContent=nm(d);const tg=Math.abs(Math.cos(t))<1e-9?'нет':fmt(Math.tan(t));
+  el.querySelector('.vals').innerHTML=`<span>cos t = ${fmt(Math.cos(t))}</span><span>sin t = ${fmt(Math.sin(t))}</span><span>tg t = ${tg}</span>`};
+ inp.oninput=draw;draw()}
+const run=r=>(r||document).querySelectorAll('[data-w]:not([data-on])').forEach(el=>{el.dataset.on=1;try{el.dataset.w==='plot'?plot(el):el.dataset.w==='trig'?trig(el):0}catch(e){el.textContent=''}});
+const kw=()=>document.querySelectorAll('.katex:not(.kw)').forEach(k=>{const p=k.parentElement&&k.parentElement.closest('.sol,.card,.bd,.v4ty,.ex,.v4w,.cheat>div,.tp');const q=k.querySelector('semantics')||k;if(p&&Math.max(k.getBoundingClientRect().right,q.getBoundingClientRect().right)>p.getBoundingClientRect().right+1)k.classList.add('kw')});
+let kq=0;new MutationObserver(()=>{run();if(!kq){kq=1;requestAnimationFrame(()=>{kq=0;kw()})}}).observe(document.body,{childList:true,subtree:true});run();window.v4widgets=run;addEventListener('resize',()=>{document.querySelectorAll('.katex.kw').forEach(k=>k.classList.remove('kw'));kw()});document.addEventListener('toggle',()=>requestAnimationFrame(kw),true);
 })();
